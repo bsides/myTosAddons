@@ -176,7 +176,7 @@ function BARRACKITEMLIST_SHOW_LIST(cid)
             local nodeItemList = list[value[1]]
             if nodeItemList and not g.setting.hideNode[i] then
                 if value[1] == "Unused" then
-                    tree:Add("Silver : " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
+                    tree:Add("Silver: " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
                     -- tree:Add("シルバー : " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
                 else
                     tree:Add(value[2]);
@@ -189,7 +189,7 @@ function BARRACKITEMLIST_SHOW_LIST(cid)
                         slot:SetTextMaxWidth(1000)
                         icon = CreateIcon(slot)
                         icon:SetImage(v[3])
-                        icon:SetTextTooltip(string.format("%s : %s",v[1],v[2]))
+                        icon:SetTextTooltip(string.format("%s: x%s",v[1],v[2]))
                         if (i % g.setting.col) == 0 then
                             slotset:ExpandRow()
                         end
@@ -232,9 +232,9 @@ function BARRACKITEMLIST_SEARCH_ITEMS(itemlist,itemName,iswarehouse)
             for group,list in pairs(itemlist[cid]) do
                 if group ~= 'warehouse' or iswarehouse then
                     for i ,v in ipairs(list) do
-                        if string.find(string.lower(v[1]),string.lower(itemName)) then
+                        if string.find(string.lower(v[1]), string.lower(itemName)) then
                             items[cid] = items[cid] or {}
-                            table.insert(items[cid],v)
+                            table.insert(items[cid], v)
                         end
                     end
                 end
@@ -242,6 +242,23 @@ function BARRACKITEMLIST_SEARCH_ITEMS(itemlist,itemName,iswarehouse)
         end
     end
     return items
+end
+
+function BARRACKITEMLIST_SEARCH_CHECKEMPTY(itemlist, itemName, isWarehouse)
+    for cid, name in pairs(g.userlist) do
+        if itemlist[cid] then
+            for group, list in pairs(itemlist[cid]) do
+                if group ~= 'warehouse' or isWarehouse then
+                    for i, v in ipairs(list) do
+                        if string.find(string.lower(v[1]),string.lower(itemName)) then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
 end
 
 function BARRACKITEMLIST_SHOW_SEARCH_ITEMS(frame, obj, argStr, argNum)
@@ -256,14 +273,27 @@ function BARRACKITEMLIST_SHOW_SEARCH_ITEMS(frame, obj, argStr, argNum)
     tree:SetFitToChild(true,60); 
     tree:SetFontName("white_20_ol");
     if editbox:GetText() == '' or not editbox:GetText() then return end
+
     local invItems = BARRACKITEMLIST_SEARCH_ITEMS(g.itemlist,editbox:GetText(),false)
     local warehouseItems = BARRACKITEMLIST_SEARCH_ITEMS(g.warehouseList,editbox:GetText(),true)
-    tree:Add('Inventory')
-    -- tree:Add('インベントリ')
-    _BARRACKITEMLIST_SEARCH_ITEMS(tree,invItems,'_i')
-    tree:Add('Storage')
-    -- tree:Add('倉庫')
-    _BARRACKITEMLIST_SEARCH_ITEMS(tree,warehouseItems,'_w')
+    
+    local hasInventory = BARRACKITEMLIST_SEARCH_CHECKEMPTY(g.itemlist, editbox:GetText(), false)
+    local hasWarehouse = BARRACKITEMLIST_SEARCH_CHECKEMPTY(g.itemlist, editbox:GetText(), true)
+
+    if hasInventory then
+        tree:Add('Inventory')
+        _BARRACKITEMLIST_SEARCH_ITEMS(tree,invItems,'_i')
+    else
+        tree:Add('Nothing found in the Inventory')
+    end
+
+    if hasWarehouse then
+        tree:Add('Storage')
+        _BARRACKITEMLIST_SEARCH_ITEMS(tree,warehouseItems,'_w')
+    else
+        tree:Add('Nothing found in the Personal Storage')
+    end
+
     tree:OpenNodeAll()
     tree:ShowWindow(1)
 end
@@ -272,7 +302,7 @@ function _BARRACKITEMLIST_SEARCH_ITEMS(tree,items,type)
     local nodeName,parentCategory
     local slot,slotset,icon
     for k,value in pairs(items) do
-        tree:Add(g.userlist[k]..type);
+        tree:Add(g.userlist[k]);
         parentCategory = tree:FindByCaption(g.userlist[k]..type);
         slotset = BARRACKITEMLIST_MAKE_SLOTSET(tree,k..type)
         tree:Add(parentCategory,slotset, 'slotset_'..k..type);
