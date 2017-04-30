@@ -6,22 +6,39 @@ g.settingPath = '../addons/barrackitemlist/'
 g.userlist  = acutil.loadJSON(g.settingPath..'userlist.json',nil) or {}
 g.warehouseList = acutil.loadJSON(g.settingPath..'warehouse.json',nil) or {}
 g.nodeList = {
-        {"Unused" , "シルバー"}
-        ,{"Weapon" , "武器"}
-        ,{"SubWeapon" , "サブ武器"}
-        ,{"Armor" , "アーマー"}
-        ,{"Drug" , "消費アイテム"}
-        ,{"Recipe" ,"レシピ"}
-        ,{"Material","素材"}
-        ,{"Gem","ジェム"}
-        ,{"Card","カード"}
-        ,{"Collection","コレクション"}
-        ,{"Quest" ,"クエスト"}
-        ,{"Event" ,"イベント"}
-        ,{"Cube" , "キューブ"}
-        ,{"Premium" ,"プレミアム"}
-        ,{"warehouse","倉庫"}
+        {"Unused" , "Unused"}
+        ,{"Weapon" , "Weapon"}
+        ,{"SubWeapon" , "SubWeapon"}
+        ,{"Armor" , "Armor"}
+        ,{"Drug" , "Drug"}
+        ,{"Recipe" ,"Recipe"}
+        ,{"Material","Material"}
+        ,{"Gem","Gem"}
+        ,{"Card","Card"}
+        ,{"Collection","Collection"}
+        ,{"Quest" ,"Quest"}
+        ,{"Event" ,"Event"}
+        ,{"Cube" , "Cube"}
+        ,{"Premium" ,"Premium"}
+        ,{"warehouse","Storage"}
     }
+-- g.nodeList = {
+--         {"Unused" , "シルバー"}
+--         ,{"Weapon" , "武器"}
+--         ,{"SubWeapon" , "サブ武器"}
+--         ,{"Armor" , "アーマー"}
+--         ,{"Drug" , "消費アイテム"}
+--         ,{"Recipe" ,"レシピ"}
+--         ,{"Material","素材"}
+--         ,{"Gem","ジェム"}
+--         ,{"Card","カード"}
+--         ,{"Collection","コレクション"}
+--         ,{"Quest" ,"クエスト"}
+--         ,{"Event" ,"イベント"}
+--         ,{"Cube" , "キューブ"}
+--         ,{"Premium" ,"プレミアム"}
+--         ,{"warehouse","倉庫"}
+--     }
 g.setting = acutil.loadJSON(g.settingPath..'setting.json',nil)
 if not g.setting then
     g.setting = {}
@@ -159,7 +176,8 @@ function BARRACKITEMLIST_SHOW_LIST(cid)
             local nodeItemList = list[value[1]]
             if nodeItemList and not g.setting.hideNode[i] then
                 if value[1] == "Unused" then
-                    tree:Add("シルバー : " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
+                    tree:Add("Silver : " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
+                    -- tree:Add("シルバー : " .. acutil.addThousandsSeparator(nodeItemList[1][2]));
                 else
                     tree:Add(value[2]);
                     parentCategory = tree:FindByCaption(value[2]);
@@ -240,9 +258,11 @@ function BARRACKITEMLIST_SHOW_SEARCH_ITEMS(frame, obj, argStr, argNum)
     if editbox:GetText() == '' or not editbox:GetText() then return end
     local invItems = BARRACKITEMLIST_SEARCH_ITEMS(g.itemlist,editbox:GetText(),false)
     local warehouseItems = BARRACKITEMLIST_SEARCH_ITEMS(g.warehouseList,editbox:GetText(),true)
-    tree:Add('インベントリ')
+    tree:Add('Inventory')
+    -- tree:Add('インベントリ')
     _BARRACKITEMLIST_SEARCH_ITEMS(tree,invItems,'_i')
-    tree:Add('倉庫')
+    tree:Add('Storage')
+    -- tree:Add('倉庫')
     _BARRACKITEMLIST_SEARCH_ITEMS(tree,warehouseItems,'_w')
     tree:OpenNodeAll()
     tree:ShowWindow(1)
@@ -263,7 +283,7 @@ function _BARRACKITEMLIST_SEARCH_ITEMS(tree,items,type)
             -- slot:SetTextMaxWidth(1000)
             icon = CreateIcon(slot)
             icon:SetImage(v[3])
-            icon:SetTextTooltip(string.format("%s : %s",v[1],v[2]))
+            icon:SetTextTooltip(string.format("%s: x%s",v[1],v[2]))
             if (i % g.setting.col) == 0 then
                 slotset:ExpandRow()
             end
