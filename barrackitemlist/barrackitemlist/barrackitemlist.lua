@@ -232,7 +232,7 @@ function BARRACKITEMLIST_SEARCH_ITEMS(itemlist,itemName,iswarehouse)
             for group,list in pairs(itemlist[cid]) do
                 if group ~= 'warehouse' or iswarehouse then
                     for i ,v in ipairs(list) do
-                        if string.find(v[1],itemName) then
+                        if string.find(string.lower(v[1]),string.lower(itemName)) then
                             items[cid] = items[cid] or {}
                             table.insert(items[cid],v)
                         end
